@@ -11,7 +11,23 @@ set -o pipefail
 # shellcheck source=/dev/null
 source "$(dirname "${BASH_SOURCE[0]}")"/dockerinspect.sh
 
-COMMIT=$GIT_COMMIT
+# git env variables
+GIT_TAG=${GITHUB_REF#refs/tags/}
+GIT_BUILD_NUMBER=$GITHUB_RUN_NUMBER
+
+if ["$GITHUB_EVENT_NAME"=="pull_request"]; then
+  GIT_BRANCH=$GITHUB_BASE_REF
+  GIT_PULL_REQUEST="true"
+  GIT_PULL_REQUEST_BRANCH=GITHUB_HEAD_REF
+
+else
+  GIT_BRANCH=${GITHUB_REF#refs/heads/})
+  GIT_PULL_REQUEST="false"
+  GIT_PULL_REQUEST_BRANCH=""
+fi
+
+COMMIT=${GITHUB_SHA::7}
+####
 
 #Set the branch
 BRANCH=$GIT_BRANCH;
@@ -108,7 +124,7 @@ fi
 exit 0
 
 # Clair vulnerability scans
-if [ -n "$GIT_PULL_REQUEST" ] && [ "${GIT_PULL_REQUEST}" != "false" ] && [ "${GIT_SECURE_ENV_VARS}" == "true" ]; then
+if [ -n "$GIT_PULL_REQUEST" ] && [ "${GIT_PULL_REQUEST}" != "false" ]; then
   START=$(date +%s)
   TAG=$GIT_BUILD_NUMBER
   CLAIR_OUTPUT="High"
