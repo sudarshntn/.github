@@ -1,0 +1,49 @@
+name: Settings_job
+
+jobs:
+  base_env:
+    steps:
+  	  - name: Extract branch name
+  		  shell: bash
+  		  run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+  		  id: current_branch
+
+      - name: Extract tag name
+        shell: bash
+        run: echo "##[set-output name=tag;]$(echo ${GITHUB_REF#refs/tags/})"
+        id: tag_name
+
+      - name: Set GIT_TAG
+        env:
+          GIT_TAG: ${{ steps.tag_name.outputs.tag }}
+
+      - name: Set GIT_BUILD_NUMBER
+        env:
+          GIT_BUILD_NUMBER: ${{ github.run_number }}
+
+      - name: Set GIT_SECURE_ENV_VARS
+        env:
+          GIT_SECURE_ENV_VARS: true
+
+      - name: Extract sha_short 
+        shell: bash
+        run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+        id: sha_commit
+
+      - name: Set GIT_COMMIT
+        env:
+          GIT_COMMIT: ${{ steps.sha_commit.outputs.sha_short }} 
+
+      - name: Validate Pull Request existence
+        if: github.event_name == 'pull_request'
+        env:
+          GIT_BRANCH: ${{ github.base_ref }}
+          GIT_PULL_REQUEST: true
+          GIT_PULL_REQUEST_BRANCH: ${{ github.head_ref }}
+
+      - name: Validate Pull Request no existence
+        if: github.event_name != 'pull_request'
+        env:
+          GIT_BRANCH: ${{ steps.current_branch.outputs.branch }}
+          GIT_PULL_REQUEST: false
+          GIT_PULL_REQUEST_BRANCH: ""
