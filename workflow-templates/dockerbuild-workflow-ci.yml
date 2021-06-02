@@ -1,9 +1,9 @@
 name: Python App Build template
 
 on:
-  - push:
-      branches: [ $default-branch ]
-  - pull_request
+  push:
+    branches: [ $default-branch ]
+  pull_request:
 
 env:
   COMMON_BUILD_REPO: '${{ secrets.COMMON_BUILD_REPO }}/CloudBroker/travis-scripts'
