@@ -1,12 +1,13 @@
 {
-    "name": "Docker Build template",
-    "description": "CI workflow template for docker builds",
-    "iconName": "example-icon",
+    "name": "Python based project CI build template",
+    "description": "Python based project CI build template along with Lint, test and docker build",
+    "iconName": "python",
     "categories": [
         "Docker",
         "Python"
     ],
     "filePatterns": [
-        "^Dockerfile"
+        "^Dockerfile",
+        "*.py"
     ]
 }
