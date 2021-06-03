@@ -39,9 +39,15 @@ jobs:
           bash BuildTools-testing/get_test_our.sh
       
       - name: Set up Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v2.1.3
         with:
           go-version: ${{ matrix.go_version }}
+
+      - name: clone another repo for build activity
+        uses: actions/checkout@v2
+        with:
+          repository: OrgName/RepoName
+          token: ${{ secrets.GHE_TOKEN }}
 
       - name: Build
         run: go build -v ./...
@@ -52,4 +58,4 @@ jobs:
       - name: Build docker image if merging to master branch
         if: ${{ github.ref == 'refs/heads/master' }} && ${{ github.ref == 'refs/heads/release-*' }}
         run: |
-          echo call the gobuild.sh code 
+          echo call the build.sh code 
