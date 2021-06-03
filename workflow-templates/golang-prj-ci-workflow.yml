@@ -1,4 +1,4 @@
-name: Python App Build template
+name: GoLang Build template
 
 on:
   push:
@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python_version: [3.2,3.6,3.9]
+        go_version: [1.16.4,1.15.12,]
     steps:
       - name: Initial step to pull Common Build tool script from Artifactory
       - uses: jfrog/setup-jfrog-cli@v1
@@ -37,32 +37,19 @@ jobs:
       - run: |
           jfrog rt dl ibmcb-generic-local/BuildTools-testing/get_test_our.sh
           bash BuildTools-testing/get_test_our.sh
-      - name: Set up Python 3.x environment on the runner 
-        uses: actions/setup-python@v2
+      
+      - name: Set up Go
+        uses: actions/setup-go@v2
         with:
-          python-version: ${{ matrix.python_version }}
-      - name: Install all python dependencies that are required by the project
-        run: |
-          # Some example commands as below
-          python -m pip install --upgrade pip
-          pip install flake8 pytest
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-      - name: Lint the python code with flake8 
-        run: |
-          # Some example commands as below
-          # stop the build if there are Python syntax errors or undefined names
-          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-          # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-      - name: Test the python project with pytest
-        run: |
-          # Some example commands as below
-          pytest
-      - name: Compile the code without building the docker image for a pull_request
-        if: ${{ github.event.pull_request }}
-        run: |
-          echo call the build.sh code 
+          go-version: ${{ matrix.go_version }}
+
+      - name: Build
+        run: go build -v ./...
+      
+      - name: Test
+        run: go test -v ./...
+
       - name: Build docker image if merging to master branch
         if: ${{ github.ref == 'refs/heads/master' }} && ${{ github.ref == 'refs/heads/release-*' }}
         run: |
-          echo call the build.sh code 
+          echo call the gobuild.sh code 

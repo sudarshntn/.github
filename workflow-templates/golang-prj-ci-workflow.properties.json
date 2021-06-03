@@ -1,0 +1,13 @@
+{
+    "name": "GoLang based project CI build template",
+    "description": "GoLang based project CI build template along with Lint, test and docker build",
+    "iconName": "go",
+    "categories": [
+        "Docker",
+        "go"
+    ],
+    "filePatterns": [
+        "^Dockerfile",
+        "*.go"
+    ]
+}
