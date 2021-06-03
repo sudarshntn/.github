@@ -1,0 +1,13 @@
+{
+    "name": "NodeJS based project CI build template",
+    "description": "NodeJS based project CI build template along with Lint, test and docker build",
+    "iconName": "nodejs",
+    "categories": [
+        "Docker",
+        "nodejs"
+    ],
+    "filePatterns": [
+        "^Dockerfile",
+        "*.js"
+    ]
+}

@@ -1,0 +1,72 @@
+name: NodeJS App Build template
+
+on:
+  push:
+    branches: 
+      - master
+      - 'release-*'
+  pull_request:
+
+env:
+  SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  GHE_TOKEN: ${{ secrets.GHE_TOKEN }}
+  AFAAS_TOKEN: ${{ secrets.AFAAS_TOKEN }}
+  AFAAS_USER: ${{ secrets.AFAAS_USER }}
+  AFAAS_USER_NPM_TOKEN: ${{ secrets.AFAAS_USER_NPM_TOKEN }}
+  AFAAS_DOCKER_REGISTRY: ${{ secrets.AFAAS_DOCKER_REGISTRY }}
+  PYPI_USER: ${{ secrets.PYPI_USER }}
+  PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+  AFAAS_NPM_USER: ${{ secrets.AFAAS_NPM_USER }}
+  AFAAS_NPM_TOKEN: ${{ secrets.AFAAS_NPM_TOKEN }}
+  DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+  DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+  DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
+  AFAAS_URL: ${{ secrets.AFAAS_URL }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        nodejs_version: [15.1.0,14.10.0,12.22.0]
+    steps:
+      - name: Initial step to pull Common Build tool script from Artifactory
+      - uses: jfrog/setup-jfrog-cli@v1
+        env: 
+          JF_ARTIFACTORY_TOKEN: ${{ secrets.JF_ARTIFACTORY_TOKEN }}
+      - run: |
+          jfrog rt dl ibmcb-generic-local/BuildTools-testing/get_test_our.sh
+          bash BuildTools-testing/get_test_our.sh
+      
+      - name: clone another repo for build activity
+        uses: actions/checkout@v2
+        with:
+          repository: OrgName/RepoName
+          token: ${{ secrets.GHE_TOKEN }}
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v2.1.5
+        with:
+          nodejs-version: ${{ matrix.nodejs_version }}
+      
+      - name: Run the npm clean cache  commands
+        run: |
+          npm cache clean --force
+      
+      - name: Run npm install command
+        run: |
+          npm install
+
+      - name: Run npm test command    
+        run: |
+          npm test
+      
+      - name: Compile the code without building the docker image for a pull_request
+        if: ${{ github.event.pull_request }}
+        run: |
+          echo call the build.sh code 
+
+      - name: Build docker image if merging to master branch
+        if: ${{ github.ref == 'refs/heads/master' }} && ${{ github.ref == 'refs/heads/release-*' }}
+        run: |
+          echo call the build.sh code
