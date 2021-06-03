@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go_version: [1.16.4,1.15.12,]
+        go_version: [1.16.4,1.15.12]
     steps:
       - name: Initial step to pull Common Build tool script from Artifactory
       - uses: jfrog/setup-jfrog-cli@v1
